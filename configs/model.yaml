@@ -1,0 +1,10 @@
+classifier:
+  name: rgb-histogram-centroid
+  version: ecustfd-rgb-v1
+  input_size: 224
+  unknown_class_policy: retain_unknown_mass
+
+calorie_model:
+  distribution: empirical
+  small_class_policy: exclude
+  minimum_class_size: 20
