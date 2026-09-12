@@ -1,0 +1,28 @@
+# Values are USDA FoodData Central Foundation Foods nutrient 1008 (Energy)
+version: usda-foundation-2026-04-30-v1
+source: https://fdc.nal.usda.gov/download-datasets/
+classes:
+  apple:
+    kcal_per_100g: 62
+    source: "USDA FDC 1105430: Apples, red delicious, with skin, raw; nutrient 1008"
+  banana:
+    kcal_per_100g: 97
+    source: "USDA FDC 1105314: Bananas, ripe and slightly ripe, raw; nutrient 1008"
+  bread:
+    kcal_per_100g: 270
+    source: "USDA FDC 325871: Bread, white, commercially prepared; nutrient 1008"
+  egg:
+    kcal_per_100g: 148
+    source: "USDA FDC 748967: Eggs, Grade A, Large, egg whole; nutrient 1008"
+  orange:
+    kcal_per_100g: 47
+    source: "USDA FDC 746771: Oranges, raw, navels; nutrient 1008"
+  pear:
+    kcal_per_100g: 57
+    source: "USDA FDC 746773: Pears, raw, bartlett; nutrient 1008"
+  peach:
+    kcal_per_100g: 42
+    source: "USDA FDC 325430: Peaches, yellow, raw; nutrient 1008"
+  qiwi:
+    kcal_per_100g: 58
+    source: "USDA FDC 327046: Kiwifruit, green, raw; nutrient 1008"

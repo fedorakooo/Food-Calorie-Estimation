@@ -1,0 +1,8 @@
+run_name: ecustfd-rgb-baseline
+seed: 42
+interval_level: 0.90
+n_simulations: 10000
+splits:
+  train: 0.70
+  validation: 0.15
+  test: 0.15

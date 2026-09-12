@@ -1,0 +1,9 @@
+# Paths are relative to the repository root.
+dataset_name: ecustfd
+raw_root: data/raw/ecustfd
+images_dir: JPEGImages
+annotations_dir: Annotations
+energy_density_path: configs/energy_density.yaml
+processed_path: data/processed/observations.parquet
+seed: 42
+minimum_class_size: 20
