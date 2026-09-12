@@ -28,8 +28,14 @@ def simulate_mixture(
     seed: int,
 ) -> np.ndarray:
     """Sample a class-probability mixture with bootstrap empirical outcomes."""
+    if probabilities.ndim != 2:
+        raise ValueError("probabilities must be a two-dimensional array")
     if probabilities.shape[1] != len(labels):
         raise ValueError("probability columns do not match labels")
+    if n_simulations < 1:
+        raise ValueError("n_simulations must be positive")
+    if not np.all(np.isfinite(probabilities)) or np.any(probabilities < 0):
+        raise ValueError("probabilities must be finite and non-negative")
     rng = np.random.default_rng(seed)
     output = np.zeros((len(probabilities), n_simulations), dtype=float)
     for row, weights in enumerate(probabilities):
@@ -49,6 +55,10 @@ def simulate_mixture(
 
 def summarize_simulations(samples: np.ndarray, interval_level: float) -> list[dict[str, float]]:
     """Summarize simulations using a central interval and stable quantiles."""
+    if samples.ndim != 2 or samples.shape[1] == 0:
+        raise ValueError("samples must have at least one simulation per row")
+    if not 0 < interval_level < 1:
+        raise ValueError("interval_level must be between 0 and 1")
     alpha = (1 - interval_level) / 2
     return [
         {
