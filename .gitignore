@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+.venv/
+__pypackages__/
+*.egg-info/
+build/
+dist/
+*.log
+
+# Local configuration and OS metadata
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# Data: retain only the auditable manifest in Git.
+data/raw/*
+!data/raw/manifest.csv
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Generated experiment outputs
+artifacts/models/*
+!artifacts/models/.gitkeep
+artifacts/runs/*
+!artifacts/runs/.gitkeep
+reports/figures/*
+!reports/figures/.gitkeep
+
+docs/
+
+# IDE
+.idea/
+.vscode/
