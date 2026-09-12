@@ -9,6 +9,7 @@ from food_calorie_estimation.config import (
 )
 from food_calorie_estimation.pipelines.prepare_data import prepare_data
 from food_calorie_estimation.pipelines.train_vision import train_vision
+from food_calorie_estimation.pipelines.estimate_calories import estimate_calories
 
 
 def main() -> None:
@@ -34,6 +35,13 @@ def main() -> None:
     vision_parser.add_argument(
         "--artifact", type=Path, default=Path("artifacts/models/vision-baseline.json")
     )
+    calorie_parser = subparsers.add_parser("estimate-calories", help="estimate calories with Monte Carlo")
+    calorie_parser.add_argument("--data", type=Path, default=Path("configs/data.yaml"))
+    calorie_parser.add_argument("--model", type=Path, default=Path("configs/model.yaml"))
+    calorie_parser.add_argument("--experiment", type=Path, default=Path("configs/experiment.yaml"))
+    calorie_parser.add_argument("--probabilities", type=Path, default=Path("artifacts/runs/class-probabilities.parquet"))
+    calorie_parser.add_argument("--output", type=Path, default=Path("artifacts/runs/calorie-estimates.parquet"))
+    calorie_parser.add_argument("--artifact", type=Path, default=Path("artifacts/models/calorie-empirical.json"))
     vision_parser.add_argument(
         "--probabilities", type=Path, default=Path("artifacts/runs/class-probabilities.parquet")
     )
@@ -63,6 +71,11 @@ def main() -> None:
 
     data_config = load_yaml_config(args.data, DataConfig)
     model_config = load_yaml_config(args.model, ModelConfig)
+    if args.command == "estimate-calories":
+        experiment = load_yaml_config(args.experiment, ExperimentConfig)
+        estimate_calories(data_config, model_config, experiment, args.probabilities, args.output, args.artifact)
+        print(f"Calorie estimates: {args.output}")
+        return
     train_vision(data_config, model_config, args.artifact, args.probabilities, args.metrics)
     print(f"Vision artifact: {args.artifact}")
     print(f"Class probabilities: {args.probabilities}")
