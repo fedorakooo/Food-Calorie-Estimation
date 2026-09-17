@@ -34,14 +34,10 @@ def test_mixture_renormalizes_mass_over_supported_classes() -> None:
 
 def test_mixture_rejects_invalid_probability_rows() -> None:
     with pytest.raises(ValueError, match="finite and non-negative"):
-        simulate_mixture(
-            np.array([[np.nan]]), ("apple",), {"apple": np.array([55.0])}, 10, 42
-        )
+        simulate_mixture(np.array([[np.nan]]), ("apple",), {"apple": np.array([55.0])}, 10, 42)
 
     with pytest.raises(ValueError, match="supported class"):
-        simulate_mixture(
-            np.array([[1.0]]), ("other_or_unknown",), {}, 10, 42
-        )
+        simulate_mixture(np.array([[1.0]]), ("other_or_unknown",), {}, 10, 42)
 
 
 def test_summary_reports_expected_central_interval() -> None:

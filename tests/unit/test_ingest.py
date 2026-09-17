@@ -58,9 +58,7 @@ def test_group_safe_split_keeps_each_group_together() -> None:
             ],
         }
     )
-    splits = assign_group_safe_splits(
-        observations, SplitConfig(train=0.5, validation=0.25, test=0.25), seed=7
-    )
+    splits = assign_group_safe_splits(observations, SplitConfig(train=0.5, validation=0.25, test=0.25), seed=7)
 
     assert splits.groupby(observations.group_id).nunique().eq(1).all()
     assert set(splits).issubset({"train", "validation", "test"})

@@ -23,9 +23,7 @@ def test_temperature_fit_uses_positive_temperature_and_improves_validation_nll()
     temperature = fit_temperature(logits, targets)
 
     assert temperature > 1
-    assert negative_log_likelihood(logits, targets, temperature) < negative_log_likelihood(
-        logits, targets, 1.0
-    )
+    assert negative_log_likelihood(logits, targets, temperature) < negative_log_likelihood(logits, targets, 1.0)
 
 
 def test_softmax_rows_sum_to_one() -> None:
