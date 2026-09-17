@@ -94,10 +94,11 @@ def load_mass_records(workbook: Path) -> dict[tuple[str, str], float]:
         expected = {"id", "type", "weight(g)"}
         if not expected.issubset(sheet.columns):
             raise ValueError(f"{sheet_name} is missing required mass columns")
-        for row in sheet.itertuples(index=False):
-            portion_id = str(getattr(row, "id")).strip()
-            food_class = str(getattr(row, "type")).strip()
-            mass_g = float(getattr(row, "_3"))
+        records_frame = sheet.loc[:, ["id", "type", "weight(g)"]]
+        for portion_id, food_class, mass_g in records_frame.itertuples(index=False, name=None):
+            portion_id = str(portion_id).strip()
+            food_class = str(food_class).strip()
+            mass_g = float(mass_g)
             if mass_g <= 0:
                 raise ValueError(f"Non-positive mass for {portion_id}/{food_class}")
             key = (portion_id, food_class)
@@ -170,16 +171,21 @@ def build_observations(config: DataConfig) -> tuple[pd.DataFrame, AuditReport]:
             food_class = raw_label.lower().replace(" ", "_")
             mass_g = mass_records.get((portion_id, food_class))
             density = densities.get(food_class)
-            exclusion_reason: str | None = None
             if mass_g is None:
                 exclusion_reason = "missing_mass_record"
             elif density is None:
                 exclusion_reason = "missing_energy_density"
-            calories = None if exclusion_reason else mass_g * density / 100
-            eligible = exclusion_reason is None
-            if eligible:
+            else:
+                exclusion_reason = None
+            if exclusion_reason is None:
+                assert mass_g is not None
+                assert density is not None
+                calories = mass_g * density / 100
+                eligible = True
                 report.eligible_rows += 1
             else:
+                calories = None
+                eligible = False
                 report.exclusion_counts[exclusion_reason] += 1
             report.class_counts[food_class] += 1
             rows.append(

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, overload
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -66,10 +66,19 @@ class ModelConfig(StrictConfig):
     calorie_model: CalorieModelSettings
 
 
-ConfigType = TypeVar("ConfigType", bound=StrictConfig)
+@overload
+def load_yaml_config(path: str | Path, model: type[DataConfig]) -> DataConfig: ...
 
 
-def load_yaml_config(path: str | Path, model: type[ConfigType]) -> ConfigType:
+@overload
+def load_yaml_config(path: str | Path, model: type[ExperimentConfig]) -> ExperimentConfig: ...
+
+
+@overload
+def load_yaml_config(path: str | Path, model: type[ModelConfig]) -> ModelConfig: ...
+
+
+def load_yaml_config(path: str | Path, model: type[StrictConfig]) -> StrictConfig:
     """Read a YAML mapping and validate it against a configuration model."""
 
     config_path = Path(path)

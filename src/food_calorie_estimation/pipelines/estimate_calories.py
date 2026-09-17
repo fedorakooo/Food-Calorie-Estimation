@@ -14,14 +14,19 @@ from food_calorie_estimation.config import DataConfig, ExperimentConfig, ModelCo
 
 
 def estimate_calories(
-    data_config: DataConfig, model_config: ModelConfig, experiment: ExperimentConfig,
-    probability_path: Path, output_path: Path, artifact_path: Path,
+    data_config: DataConfig,
+    model_config: ModelConfig,
+    experiment: ExperimentConfig,
+    probability_path: Path,
+    output_path: Path,
+    artifact_path: Path,
 ) -> None:
     observations = pd.read_parquet(data_config.processed_path)
     observations = observations.loc[observations.is_eligible].copy()
     train = observations.loc[observations.split == "train"]
     distributions = fit_empirical_distributions(
-        train.calories_kcal.to_numpy(), train.food_class.to_numpy(),
+        train.calories_kcal.to_numpy(),
+        train.food_class.to_numpy(),
         model_config.calorie_model.minimum_class_size,
     )
     probabilities = pd.read_parquet(probability_path)
@@ -33,4 +38,9 @@ def estimate_calories(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     summaries.to_parquet(output_path, index=False)
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
-    artifact_path.write_text(json.dumps({"distribution": "empirical", "classes": {k: len(v) for k, v in distributions.items()}, "n_simulations": experiment.n_simulations}, indent=2, sort_keys=True), encoding="utf-8")
+    artifact = {
+        "distribution": "empirical",
+        "classes": {label: len(values) for label, values in distributions.items()},
+        "n_simulations": experiment.n_simulations,
+    }
+    artifact_path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")

@@ -24,9 +24,7 @@ def prepare_data(
         )
         report.split_counts.update(observations.loc[eligible, "split"])
         split_path.parent.mkdir(parents=True, exist_ok=True)
-        observations.loc[eligible, ["sample_id", "group_id", "split"]].to_csv(
-            split_path, index=False
-        )
+        observations.loc[eligible, ["sample_id", "group_id", "split"]].to_csv(split_path, index=False)
     config.processed_path.parent.mkdir(parents=True, exist_ok=True)
     observations.to_parquet(config.processed_path, index=False)
     audit_path.parent.mkdir(parents=True, exist_ok=True)

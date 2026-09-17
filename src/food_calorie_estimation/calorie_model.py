@@ -71,3 +71,34 @@ def summarize_simulations(samples: np.ndarray, interval_level: float) -> list[di
         }
         for row in samples
     ]
+
+
+def evaluate_estimates(
+    actual: np.ndarray,
+    estimated: np.ndarray,
+    interval_lower: np.ndarray,
+    interval_upper: np.ndarray,
+) -> dict[str, float]:
+    """Calculate point and interval diagnostics for held-out calorie estimates."""
+
+    arrays = tuple(np.asarray(values, dtype=float) for values in (actual, estimated, interval_lower, interval_upper))
+    if any(values.ndim != 1 for values in arrays):
+        raise ValueError("evaluation inputs must be one-dimensional arrays")
+    if not len(arrays[0]) or any(len(values) != len(arrays[0]) for values in arrays[1:]):
+        raise ValueError("evaluation inputs must be non-empty and have equal lengths")
+    if not all(np.all(np.isfinite(values)) for values in arrays):
+        raise ValueError("evaluation inputs must be finite")
+    actual_values, estimated_values, lower_values, upper_values = arrays
+    if np.any(actual_values < 0) or np.any(estimated_values < 0):
+        raise ValueError("actual and estimated calories must be non-negative")
+    if np.any(lower_values > upper_values):
+        raise ValueError("interval lower bounds cannot exceed upper bounds")
+
+    error = estimated_values - actual_values
+    return {
+        "mae_kcal": float(np.abs(error).mean()),
+        "rmse_kcal": float(np.sqrt(np.mean(error**2))),
+        "mean_error_kcal": float(error.mean()),
+        "interval_coverage": float(((actual_values >= lower_values) & (actual_values <= upper_values)).mean()),
+        "mean_interval_width_kcal": float((upper_values - lower_values).mean()),
+    }

@@ -15,9 +15,7 @@ def image_feature(path: str | Path, input_size: int) -> np.ndarray:
     with Image.open(path) as image:
         image = ImageOps.exif_transpose(image).convert("RGB").resize((input_size, input_size))
         pixels = np.asarray(image, dtype=np.uint8)
-    histograms = [
-        np.histogram(pixels[..., channel], bins=16, range=(0, 256))[0] for channel in range(3)
-    ]
+    histograms = [np.histogram(pixels[..., channel], bins=16, range=(0, 256))[0] for channel in range(3)]
     feature = np.concatenate(histograms).astype(float)
     return feature / feature.sum()
 

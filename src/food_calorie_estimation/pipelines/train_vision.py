@@ -65,9 +65,7 @@ def train_vision(
     if train.empty or validation.empty:
         raise ValueError("processed observations require non-empty train and validation splits")
     settings = model_config.classifier
-    classifier = CentroidClassifier.fit(
-        train.image_path.tolist(), train.food_class.tolist(), settings.input_size
-    )
+    classifier = CentroidClassifier.fit(train.image_path.tolist(), train.food_class.tolist(), settings.input_size)
     label_index = {label: index for index, label in enumerate(classifier.labels)}
     validation_logits = classifier.logits_for_paths(validation.image_path.tolist())
     validation_targets = validation.food_class.map(label_index).to_numpy()

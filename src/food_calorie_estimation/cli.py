@@ -7,9 +7,10 @@ from food_calorie_estimation.config import (
     ModelConfig,
     load_yaml_config,
 )
+from food_calorie_estimation.pipelines.estimate_calories import estimate_calories
+from food_calorie_estimation.pipelines.evaluate_calories import evaluate_calories
 from food_calorie_estimation.pipelines.prepare_data import prepare_data
 from food_calorie_estimation.pipelines.train_vision import train_vision
-from food_calorie_estimation.pipelines.estimate_calories import estimate_calories
 
 
 def main() -> None:
@@ -21,42 +22,39 @@ def main() -> None:
     prepare_parser = subparsers.add_parser("prepare-data", help="audit and prepare source data")
     prepare_parser.add_argument("--config", type=Path, required=True)
     prepare_parser.add_argument("--experiment", type=Path, default=Path("configs/experiment.yaml"))
-    prepare_parser.add_argument(
-        "--audit", type=Path, default=Path("artifacts/runs/data-audit.json")
-    )
-    prepare_parser.add_argument(
-        "--splits", type=Path, default=Path("artifacts/runs/split-assignments.csv")
-    )
-    vision_parser = subparsers.add_parser(
-        "fit-vision", help="fit the image classifier and validation-only calibration"
-    )
+    prepare_parser.add_argument("--audit", type=Path, default=Path("artifacts/runs/data-audit.json"))
+    prepare_parser.add_argument("--splits", type=Path, default=Path("artifacts/runs/split-assignments.csv"))
+    vision_parser = subparsers.add_parser("fit-vision", help="fit the image classifier and validation-only calibration")
     vision_parser.add_argument("--data", type=Path, default=Path("configs/data.yaml"))
     vision_parser.add_argument("--model", type=Path, default=Path("configs/model.yaml"))
-    vision_parser.add_argument(
-        "--artifact", type=Path, default=Path("artifacts/models/vision-baseline.json")
-    )
+    vision_parser.add_argument("--artifact", type=Path, default=Path("artifacts/models/vision-baseline.json"))
     calorie_parser = subparsers.add_parser("estimate-calories", help="estimate calories with Monte Carlo")
     calorie_parser.add_argument("--data", type=Path, default=Path("configs/data.yaml"))
     calorie_parser.add_argument("--model", type=Path, default=Path("configs/model.yaml"))
     calorie_parser.add_argument("--experiment", type=Path, default=Path("configs/experiment.yaml"))
-    calorie_parser.add_argument("--probabilities", type=Path, default=Path("artifacts/runs/class-probabilities.parquet"))
-    calorie_parser.add_argument("--output", type=Path, default=Path("artifacts/runs/calorie-estimates.parquet"))
-    calorie_parser.add_argument("--artifact", type=Path, default=Path("artifacts/models/calorie-empirical.json"))
-    vision_parser.add_argument(
+    calorie_parser.add_argument(
         "--probabilities", type=Path, default=Path("artifacts/runs/class-probabilities.parquet")
     )
-    vision_parser.add_argument(
-        "--metrics", type=Path, default=Path("artifacts/runs/vision-validation.json")
+    calorie_parser.add_argument("--output", type=Path, default=Path("artifacts/runs/calorie-estimates.parquet"))
+    calorie_parser.add_argument("--artifact", type=Path, default=Path("artifacts/models/calorie-empirical.json"))
+    evaluation_parser = subparsers.add_parser(
+        "evaluate-calories", help="evaluate calorie estimates on the held-out test split"
     )
+    evaluation_parser.add_argument("--data", type=Path, default=Path("configs/data.yaml"))
+    evaluation_parser.add_argument("--experiment", type=Path, default=Path("configs/experiment.yaml"))
+    evaluation_parser.add_argument("--estimates", type=Path, default=Path("artifacts/runs/calorie-estimates.parquet"))
+    evaluation_parser.add_argument("--output", type=Path, default=Path("artifacts/runs/calorie-test-metrics.json"))
+    vision_parser.add_argument("--probabilities", type=Path, default=Path("artifacts/runs/class-probabilities.parquet"))
+    vision_parser.add_argument("--metrics", type=Path, default=Path("artifacts/runs/vision-validation.json"))
     args = parser.parse_args()
 
     if args.command == "validate-config":
-        model = {
-            "data": DataConfig,
-            "experiment": ExperimentConfig,
-            "model": ModelConfig,
-        }[args.kind]
-        load_yaml_config(args.path, model)
+        if args.kind == "data":
+            load_yaml_config(args.path, DataConfig)
+        elif args.kind == "experiment":
+            load_yaml_config(args.path, ExperimentConfig)
+        else:
+            load_yaml_config(args.path, ModelConfig)
         print(f"Valid {args.kind} configuration: {args.path}")
         return
 
@@ -70,6 +68,12 @@ def main() -> None:
         return
 
     data_config = load_yaml_config(args.data, DataConfig)
+    if args.command == "evaluate-calories":
+        experiment = load_yaml_config(args.experiment, ExperimentConfig)
+        evaluate_calories(data_config, experiment, args.estimates, args.output)
+        print(f"Held-out calorie metrics: {args.output}")
+        return
+
     model_config = load_yaml_config(args.model, ModelConfig)
     if args.command == "estimate-calories":
         experiment = load_yaml_config(args.experiment, ExperimentConfig)

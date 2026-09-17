@@ -8,9 +8,7 @@ from food_calorie_estimation.config import SplitConfig
 _SPLIT_NAMES = ("train", "validation", "test")
 
 
-def assign_group_safe_splits(
-    observations: pd.DataFrame, splits: SplitConfig, seed: int
-) -> pd.Series:
+def assign_group_safe_splits(observations: pd.DataFrame, splits: SplitConfig, seed: int) -> pd.Series:
     """Assign every source group to one split while approximately preserving classes.
 
     A source group may contain multiple food classes (ECUSTFD mix images), so
@@ -30,9 +28,7 @@ def assign_group_safe_splits(
 
     group_class_counts = pd.crosstab(observations.group_id, observations.food_class)
     if len(group_class_counts) < len(_SPLIT_NAMES):
-        raise ValueError(
-            "at least three source groups are required for train/validation/test splitting"
-        )
+        raise ValueError("at least three source groups are required for train/validation/test splitting")
 
     fractions = np.array([splits.train, splits.validation, splits.test])
     target_class_counts = np.outer(fractions, group_class_counts.sum(axis=0).to_numpy())
@@ -42,17 +38,15 @@ def assign_group_safe_splits(
     assignments: dict[str, str] = {}
 
     generator = np.random.default_rng(seed)
-    tie_breaker = dict(
-        zip(group_class_counts.index, generator.random(len(group_class_counts)), strict=True)
-    )
+    tie_breaker = dict(zip(group_class_counts.index, generator.random(len(group_class_counts)), strict=True))
     ordered_groups = sorted(
         group_class_counts.index,
-        key=lambda group: (-int(group_class_counts.loc[group].sum()), tie_breaker[group]),
+        key=lambda group: (-int(group_class_counts.loc[[group]].to_numpy(dtype=float).sum()), tie_breaker[group]),
     )
 
     for group in ordered_groups:
-        group_counts = group_class_counts.loc[group].to_numpy(dtype=float)
-        group_rows = group_counts.sum()
+        group_counts = group_class_counts.loc[[group]].to_numpy(dtype=float).ravel()
+        group_rows = float(group_counts.sum())
         scores: list[float] = []
         for split_index in range(len(_SPLIT_NAMES)):
             projected_classes = assigned_class_counts.copy()

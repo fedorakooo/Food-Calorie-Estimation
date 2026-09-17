@@ -5,9 +5,7 @@ import numpy as np
 from food_calorie_estimation.vision.classifier import softmax
 
 
-def negative_log_likelihood(
-    logits: np.ndarray, target_indices: np.ndarray, temperature: float
-) -> float:
+def negative_log_likelihood(logits: np.ndarray, target_indices: np.ndarray, temperature: float) -> float:
     probabilities = softmax(logits, temperature)
     target_probabilities = probabilities[np.arange(len(target_indices)), target_indices]
     return float(-np.log(np.clip(target_probabilities, 1e-12, 1)).mean())
@@ -23,9 +21,7 @@ def fit_temperature(logits: np.ndarray, target_indices: np.ndarray) -> float:
     return float(candidates[int(np.argmin(losses))])
 
 
-def calibration_metrics(
-    logits: np.ndarray, target_indices: np.ndarray, temperature: float
-) -> dict[str, float]:
+def calibration_metrics(logits: np.ndarray, target_indices: np.ndarray, temperature: float) -> dict[str, float]:
     """Compute reproducible validation classification/calibration diagnostics."""
 
     probabilities = softmax(logits, temperature)
