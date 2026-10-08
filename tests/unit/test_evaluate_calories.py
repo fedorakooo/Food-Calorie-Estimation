@@ -20,10 +20,13 @@ def test_evaluate_estimates_reports_point_and_interval_metrics() -> None:
 
     assert metrics == {
         "mae_kcal": 10.0,
+        "median_absolute_error_kcal": 10.0,
         "rmse_kcal": 10.0,
         "mean_error_kcal": 0.0,
         "interval_coverage": 1.0,
         "mean_interval_width_kcal": 35.0,
+        "median_interval_width_kcal": 35.0,
+        "mean_interval_score_kcal": 35.0,
     }
 
 
