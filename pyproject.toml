@@ -5,6 +5,7 @@ description = "Probabilistic calorie estimation from food images."
 authors = [{ name = "Aliaksandr Fedaraka", email = "fedorakooo@gmail.com" }]
 requires-python = ">=3.12,<4.0"
 dependencies = [
+    "matplotlib>=3.9,<4",
     "numpy>=2.1,<3",
     "pandas>=2.2,<3",
     "pillow>=10.4,<12",
