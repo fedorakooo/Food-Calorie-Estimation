@@ -36,8 +36,7 @@ artifacts/runs/*
 !artifacts/runs/.gitkeep
 reports/figures/*
 !reports/figures/.gitkeep
-
-docs/
+tmp/
 
 # IDE
 .idea/
