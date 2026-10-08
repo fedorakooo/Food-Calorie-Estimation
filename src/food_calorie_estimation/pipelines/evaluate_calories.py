@@ -55,6 +55,7 @@ def evaluate_calories(
             evaluated.estimated_calories_kcal.to_numpy(),
             evaluated.interval_lower_kcal.to_numpy(),
             evaluated.interval_upper_kcal.to_numpy(),
+            experiment.interval_level,
         ),
         "evaluation_split": "test",
         "test_rows": int(len(evaluated)),
